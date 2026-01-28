@@ -1,32 +1,30 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Graphics/Sprite.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <SFML/Window/Event.hpp>
+#include <SFML/Window/Keyboard.hpp>
 #include <iostream>
+#include <optional>
+
+void UserInput(std::optional<sf::Event>& event, sf::Sprite& sprite);
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode({800, 600}), "SFML Window");
-    
+    sf::RenderWindow window(sf::VideoMode({800, 600}), "Super video game.com");
     sf::Texture texture;
-    if(!texture.loadFromFile("mario.jpg")) {
-        std :: cout<<"image not working" << std :: endl;
-    }    
+    if (!texture.loadFromFile("images/mushroom2.jpg")) {
+        std::cout << "image not working" << std::endl;
+    }
     sf::Sprite sprite(texture);
-
-
-
-    sf::Vector2u size = window.getSize();
-    float width = size.x;
-    float height = size.y;
-
-
-
-    sf::Vector2f scale(10, 10);
-    sprite.setScale(scale);
-
-    while(window.isOpen()) {
-        while(auto event = window.pollEvent()) {
+    sprite.setScale(sf::Vector2f(0.1, 0.1));
+    sprite.setPosition(sf::Vector2f(120, 120));
+    
+    while (window.isOpen()) {
+        while (auto event = window.pollEvent()) {
             if (event->is<sf::Event::Closed>())
                 window.close();
-        } 
+            
+            UserInput(event, sprite);
+        }
         
         window.clear();
         window.draw(sprite);
@@ -35,4 +33,20 @@ int main() {
     
     return 0;
 }
-   
+
+void UserInput(std::optional<sf::Event>& event, sf::Sprite& sprite) {
+    if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
+        if (keyPressed->scancode == sf::Keyboard::Scancode::D) {
+            sprite.move(sf::Vector2f(5.0f, 0.0f));
+        }
+        if (keyPressed->scancode == sf::Keyboard::Scancode::A) {
+            sprite.move(sf::Vector2f(-5.0f, 0.0f));
+        }
+        if (keyPressed->scancode == sf::Keyboard::Scancode::W) {
+            sprite.move(sf::Vector2f(0.0f, -5.0f));
+        }
+        if (keyPressed->scancode == sf::Keyboard::Scancode::S) {
+            sprite.move(sf::Vector2f(0.0f, 5.0f));
+        }
+    }
+}
