@@ -4,9 +4,34 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <iostream>
-#include <optional>
 
-void UserInput(std::optional<sf::Event>& event, sf::Sprite& sprite);
+
+
+void UserInput(std::optional<sf::Event>& event, sf::Sprite& sprite) {
+    if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
+        if (keyPressed->scancode == sf::Keyboard::Scancode::D) {
+            sprite.move(sf::Vector2f(5.0f, 0.0f));
+        }
+        if (keyPressed->scancode == sf::Keyboard::Scancode::A) {
+            sprite.move(sf::Vector2f(-5.0f, 0.0f));
+        }
+        if (keyPressed->scancode == sf::Keyboard::Scancode::W) {
+            sprite.move(sf::Vector2f(0.0f, -5.0f));
+        }
+        if (keyPressed->scancode == sf::Keyboard::Scancode::S) {
+            sprite.move(sf::Vector2f(0.0f, 5.0f));
+        }
+    }
+}
+
+
+void UserGravity(sf::Sprite& sprite) {
+    sf::Vector2f position = sprite.getPosition();
+    if (position.y != 250) {
+        sprite.move(sf::Vector2(0.0f , 0.5f));
+    }
+}
+
 
 int main() {
     sf::RenderWindow window(sf::VideoMode({800, 600}), "Super video game.com");
@@ -26,6 +51,7 @@ int main() {
             UserInput(event, sprite);
         }
         
+        UserGravity(sprite);
         window.clear();
         window.draw(sprite);
         window.display();
@@ -33,22 +59,4 @@ int main() {
     
     return 0;
 }
-
-void UserInput(std::optional<sf::Event>& event, sf::Sprite& sprite) {
-    if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
-        if (keyPressed->scancode == sf::Keyboard::Scancode::D) {
-            sprite.move(sf::Vector2f(5.0f, 0.0f));
-        }
-        if (keyPressed->scancode == sf::Keyboard::Scancode::A) {
-            sprite.move(sf::Vector2f(-5.0f, 0.0f));
-        }
-        if (keyPressed->scancode == sf::Keyboard::Scancode::W) {
-            sprite.move(sf::Vector2f(0.0f, -5.0f));
-        }
-        if (keyPressed->scancode == sf::Keyboard::Scancode::S) {
-            sprite.move(sf::Vector2f(0.0f, 5.0f));
-        }
-    }
-}
-
-//hello
+//make the gravity which moves the sprite to ground
