@@ -1,47 +1,43 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Sprite.hpp>
+#include <SFML/System/Clock.hpp>
+#include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <iostream>
 
-void UserInput(std::optional<sf::Event> &event, sf::Sprite &sprite, sf::Vector2f &velocity) {
+void UserInput(sf::Sprite &sprite, sf::Vector2f &velocity) {
 
-  float moveSpeed = 0.1;
-  float jumpSpeed = 5;
-  if (const auto *keyPressed = event->getIf<sf::Event::KeyPressed>()) {
-    if (keyPressed->scancode == sf::Keyboard::Scancode::D) {
-      velocity.x = moveSpeed;
-    }
-    if (keyPressed->scancode == sf::Keyboard::Scancode::A) {
-      velocity.x = -moveSpeed;
-    }
-    if (keyPressed->scancode == sf::Keyboard::Scancode::W) {
-      velocity.y = -jumpSpeed;
-    }
+  velocity.x = 0;
+
+  float moveSpeed = 300.0f;
+  float jumpSpeed = 300.0f;
+  
+
+  if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::D)) {
+    velocity.x = moveSpeed;
+  }
+  if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::A)) {
+    velocity.x = -moveSpeed;
   }
 
-  if (const auto *keyReleased = event->getIf<sf::Event::KeyReleased>()) {
-    if (keyReleased->scancode == sf::Keyboard::Scancode::D ||
-        keyReleased->scancode == sf::Keyboard::Scancode::A) {
-      velocity.x = 0;
-    }
+  if (sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Space)) {
+    velocity.y = -jumpSpeed;
   }
 }
 
-void UserGravity(sf::Sprite &sprite, sf::Vector2f &velocity) {
-  const float gravity = 0.1;
-  const float Ground = 120;
+void UserGravity(sf::Sprite &sprite, sf::Vector2f &velocity, float dt) {
+  const float gravity = 500.0f;
+  const float Ground = 240;
 
-  if (sprite.getPosition().y < Ground) {
-    velocity.y += gravity;
-  } else {
-    if (velocity.y > 0) {
-      velocity.y = 0;
-      sprite.setPosition(sf::Vector2f(sprite.getPosition().x, Ground));
-    }
+  velocity.y += gravity * dt;
+  sprite.move(velocity * dt);
+
+  if (sprite.getPosition().y >= Ground) {
+    velocity.y = 0;
+    sprite.setPosition(sf::Vector2f(sprite.getPosition().x, Ground));
   }
-  sprite.move(velocity);
 }
 
 int main() {
@@ -50,21 +46,27 @@ int main() {
   if (!texture.loadFromFile("images/mushroom2.jpg")) {
     std::cout << "image not working" << std::endl;
   }
+
+  sf::Clock clock;
+
   sf::Sprite sprite(texture);
   sprite.setScale(sf::Vector2f(0.1, 0.1));
-  sprite.setPosition(sf::Vector2f(110, 50));
+  sprite.setPosition(sf::Vector2f(110, 150));
   sf::Vector2f velocity(0, 0);
 
   while (window.isOpen()) {
+    sf::Time dt = clock.restart();
+    float deltaTime = dt.asSeconds();
+
     while (auto event = window.pollEvent()) {
       if (event->is<sf::Event::Closed>())
         window.close();
 
-      UserInput(event, sprite, velocity);
+      
     }
-
-    UserGravity(sprite, velocity);
-    std::cout << sprite.getPosition().y<< std::endl;
+    UserInput(sprite, velocity);
+    UserGravity(sprite, velocity, deltaTime);
+    std::cout << velocity.x << std::endl;
     window.clear();
     window.draw(sprite);
     window.display();
@@ -72,6 +74,3 @@ int main() {
 
   return 0;
 }
-
-// find a way to update user gravity automatically, bc now it is tagged
-// undeclared
