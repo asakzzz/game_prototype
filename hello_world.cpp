@@ -7,11 +7,8 @@
 
 void UserInput(std::optional<sf::Event> &event, sf::Sprite &sprite, sf::Vector2f &velocity) {
 
-  float moveSpeed = 5.0f;
-  float jumpSpeed = 30.0f;
-    std::cout << sprite.getPosition().x << "" << sprite.getPosition().y
-  << std::endl;
-
+  float moveSpeed = 0.1;
+  float jumpSpeed = 5;
   if (const auto *keyPressed = event->getIf<sf::Event::KeyPressed>()) {
     if (keyPressed->scancode == sf::Keyboard::Scancode::D) {
       velocity.x = moveSpeed;
@@ -33,13 +30,16 @@ void UserInput(std::optional<sf::Event> &event, sf::Sprite &sprite, sf::Vector2f
 }
 
 void UserGravity(sf::Sprite &sprite, sf::Vector2f &velocity) {
-  const float gravity = 5;
-  const float Ground = 250;
+  const float gravity = 0.1;
+  const float Ground = 120;
 
   if (sprite.getPosition().y < Ground) {
     velocity.y += gravity;
   } else {
-    velocity.y = 0;
+    if (velocity.y > 0) {
+      velocity.y = 0;
+      sprite.setPosition(sf::Vector2f(sprite.getPosition().x, Ground));
+    }
   }
   sprite.move(velocity);
 }
@@ -52,7 +52,7 @@ int main() {
   }
   sf::Sprite sprite(texture);
   sprite.setScale(sf::Vector2f(0.1, 0.1));
-  sprite.setPosition(sf::Vector2f(120, 120));
+  sprite.setPosition(sf::Vector2f(110, 50));
   sf::Vector2f velocity(0, 0);
 
   while (window.isOpen()) {
@@ -64,7 +64,7 @@ int main() {
     }
 
     UserGravity(sprite, velocity);
-    sprite.move(velocity);
+    std::cout << sprite.getPosition().y<< std::endl;
     window.clear();
     window.draw(sprite);
     window.display();
